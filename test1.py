@@ -13,10 +13,8 @@ def find_free_port():
 
 if __name__ == "__main__":
     messages = [
-        "CREATE DATABASE db;",
-        "CREATE TABLE t (id int, name varchar(20));",
-        "INSERT INTO t (id, name) VALUES (1, 'hi');",
-        "COMMIT",
+        "USE example_database;",
+        "SELECT * FROM cars WHERE YEAR NOT BETWEEN 2000 AND 2010 AND NOT YEAR < 1900;",
     ]
     port = find_free_port()
     conn = subprocess.Popen(["python3", "exceldb/main.py", "-c", str(port)])
@@ -25,5 +23,6 @@ if __name__ == "__main__":
     socket.connect(f"tcp://localhost:{port}")
     for i in messages:
         socket.send_json({"statement": i})
-        print(socket.recv_json())
+        # print(socket.recv_json())
+        socket.recv_json()
     conn.terminate()

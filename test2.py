@@ -1,3 +1,4 @@
-from exceldb.parser.pattern_matching import Expression
+from exceldb.parser.pattern_matching import *
 
-print(Expression[1, 2, 3]._eq_([1, 1, 3, 4]))
+x = Expression["[", ZeroOrOne[OneOrMany[Choice[Instance[int]]]], "]"]
+print(x == ["[", 1, 2, 3, 4, "]"])

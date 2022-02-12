@@ -14,7 +14,8 @@ def connection(port):
 
         try:
             tree = Parser(statement)
-            socket.send_json({"type": "tree", "value": str(tree)})
+            result = execute(tree)
+            socket.send_json({"type": "result", "value": str(result)})
         except Exception as error:
             socket.send_json({"type": "error", "value": str(error)})
 

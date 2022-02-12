@@ -1,0 +1,5 @@
+NAME, DOB, BREED
+VARCHAR(20), DATE, VARCHAR(20)
+PEKACHU, 20/7/2007, golden retriever
+DOGGO, 20/8/2006, labrador
+Pika, 20/9/2005, german shepherd

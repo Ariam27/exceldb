@@ -13,6 +13,7 @@ from .tokens import (
     EOL,
     NAME,
     VAL,
+    INTVAL,
 )
 from .pattern_matching import Expression, Instance, OneOrMany, ZeroOrOne, Choice
 from .pattern_matching import CaptureGroup as CG
@@ -22,7 +23,7 @@ _DT = Choice[
     Expression[
         Choice[DT("CHAR"), DT("VARCHAR")],
         NCG[CTX("(")],
-        Instance[VAL],
+        Instance[INTVAL],
         NCG[CTX(")")],
     ],
     Instance[DT],
@@ -33,24 +34,32 @@ _ARRAY = lambda x: Expression[NCG[CTX("(")], _CSV(x), NCG[CTX(")")]]
 _BOOL = Expression[
     Choice[
         Expression[
-            Instance[NAME], AOPR("BETWEEN"), Instance[VAL], BOPR("AND"), Instance[VAL]
+            Instance[NAME],
+            ZeroOrOne[BOPR("NOT")],
+            AOPR("BETWEEN"),
+            Instance[VAL],
+            NCG[BOPR("AND")],
+            Instance[VAL],
         ],
-        Expression[Instance[NAME], AOPR("LIKE"), Instance[VAL]],
+        Expression[Instance[NAME], ZeroOrOne[BOPR("NOT")], AOPR("LIKE"), Instance[VAL]],
         Expression[
             Instance[NAME],
+            ZeroOrOne[BOPR("NOT")],
             AOPR("IN"),
             _ARRAY(Instance[VAL]),
         ],
-        Expression[Instance[NAME], Instance[SOPR], Instance[VAL]],
+        Expression[
+            ZeroOrOne[BOPR("NOT")], Instance[NAME], Instance[SOPR], Instance[VAL]
+        ],
     ]
 ]
 
 BOOL = Expression[
-    CG[ZeroOrOne[Expression[BOPR("NOT")]], _BOOL],
+    CG[_BOOL],
     ZeroOrOne[
         OneOrMany[
             CG[Choice[Expression[BOPR("AND")], Expression[BOPR("OR")]]],
-            CG[ZeroOrOne[Expression[BOPR("NOT")]], _BOOL],
+            CG[_BOOL],
         ]
     ],
 ]
@@ -89,6 +98,10 @@ DELETE = Expression[
     CG[Instance[NAME]],
     CG[ZeroOrOne[NCG[HL("WHERE")], BOOL]],
     NCG[EOL(";")],
+]
+
+USE = Expression[
+    CG[DDL("USE")], CG[Choice[Instance[NAME], Instance[VAL]]], NCG[EOL(";")]
 ]
 
 CREATE = Choice[
@@ -149,6 +162,7 @@ STATEMENT = Expression[
                 INSERT,
                 UPDATE,
                 DELETE,
+                USE,
                 CREATE,
                 DROP,
                 TRUNCATE,

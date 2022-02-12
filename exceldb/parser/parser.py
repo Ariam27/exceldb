@@ -1,8 +1,9 @@
 from .lexer import Lexer
 from .grammars import STATEMENT
+from typing import List
 
 
-def Parser(inp: str):
+def Parser(inp: str) -> List:
     tokens = Lexer(inp).tokens
     out = STATEMENT(tokens, debug=True)
 

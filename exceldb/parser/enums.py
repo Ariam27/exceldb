@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DDL(Enum):
+    USE = "USE"
     CREATE = "CREATE"
     DROP = "DROP"
     ALTER = "ALTER"

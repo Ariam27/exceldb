@@ -42,13 +42,13 @@ class _Expression:
         return (True, o)
 
     def __eq__(
-        self, other: List[Any], debug: Optional[bool] = None
+        self, other: List[Any], debug: Optional[bool] = False
     ) -> Union[bool, Tuple[bool, int]]:
         eq = self._eq_(other)
 
         if eq[1] < len(other):
-            return False if debug is None else (False, eq[1])
-        return eq[0] if debug is None else eq
+            return False if not debug else (False, eq[1])
+        return eq[0] if not debug else eq
 
     def _match_(self, other: List[Any]) -> Tuple[List[Any], int]:
         matches = []
@@ -65,15 +65,27 @@ class _Expression:
         return (MatchList(matches), o)
 
     def __call__(
-        self, other: List[Any], debug: Optional[bool] = None
+        self,
+        other: List[Any],
+        debug: Optional[bool] = False,
+        single_expand: Optional[bool] = False,
     ) -> Union[List[Any], Tuple[bool, int], bool]:
         eq = self.__eq__(other, debug=debug)
 
-        if not (eq if debug is None else eq[0]):
+        if not (eq if not debug else eq[0]):
             return eq
 
         match = self._match_(other)
-        matches = [list(i) for i in match[0] if isinstance(i, MatchList)]
+
+        if not single_expand:
+            matches = [list(i) for i in match[0] if isinstance(i, MatchList)]
+        else:
+            matches = [
+                i[0] if len(i) == 1 else list(i)
+                for i in match[0]
+                if isinstance(i, MatchList)
+            ]
+
         return matches
 
 

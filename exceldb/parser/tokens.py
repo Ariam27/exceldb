@@ -20,6 +20,11 @@ class VAL(Token):
 
 
 @dataclass
+class INTVAL(VAL):
+    token: int
+
+
+@dataclass
 class UKN(Token):
     token: str
 

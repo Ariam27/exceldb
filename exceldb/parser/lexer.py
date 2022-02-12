@@ -79,7 +79,9 @@ class Lexer:
                 if add:
                     self.reader.consume(index - 1)
                     self.tokens.append(
-                        tokens.VAL(float(number) if "." in number else int(number))
+                        tokens.VAL(float(number))
+                        if "." in number
+                        else tokens.INTVAL(int(number))
                     )
                     continue
 
