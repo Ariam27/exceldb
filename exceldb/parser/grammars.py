@@ -15,9 +15,55 @@ from .tokens import (
     VAL,
     INTVAL,
 )
-from .pattern_matching import Expression, Instance, OneOrMany, ZeroOrOne, Choice
+from .pattern_matching import (
+    Expression,
+    Instance,
+    OneOrMany,
+    ZeroOrOne,
+    Choice,
+    Not,
+    Anchor,
+    Reference,
+)
 from .pattern_matching import CaptureGroup as CG
 from .pattern_matching import NonCaptureGroup as NCG
+
+PATTERN = CG[
+    ZeroOrOne[
+        Anchor[
+            "wildcard",
+            OneOrMany[
+                Choice[
+                    CG[Choice["_", "%"]],
+                    CG["[", Instance[str], "-", Instance[str], "]"],
+                    CG[
+                        "[",
+                        OneOrMany[
+                            Choice[
+                                Expression[NCG["\\"], "\\"],
+                                Expression[NCG["\\"], "]"],
+                                Not["]"],
+                            ]
+                        ],
+                        "]",
+                    ],
+                ]
+            ],
+        ]
+    ],
+    ZeroOrOne[
+        OneOrMany[
+            Choice[
+                CG["\\", Choice["b", "r", "n", "t"]],
+                Expression[NCG["\\"], "\\"],
+                Expression[Not["\\"], Reference["wildcard"]],
+                NCG["\\"],
+                Instance[str],
+            ]
+        ]
+    ],
+]
+
 
 _DT = Choice[
     Expression[
@@ -54,12 +100,25 @@ _BOOL = Expression[
     ]
 ]
 
-BOOL = Expression[
-    CG[_BOOL],
+BOOL = Anchor[
+    "bool",
+    CG[
+        Choice[
+            _BOOL,
+            Expression[
+                ZeroOrOne[BOPR("NOT")], NCG[CTX("(")], Reference["bool"], NCG[CTX(")")]
+            ],
+        ],
+    ],
     ZeroOrOne[
         OneOrMany[
             CG[Choice[Expression[BOPR("AND")], Expression[BOPR("OR")]]],
-            CG[_BOOL],
+            CG[
+                Choice[
+                    _BOOL,
+                    Expression[NCG[CTX("(")], Reference["bool"], NCG[CTX(")")]],
+                ],
+            ],
         ]
     ],
 ]

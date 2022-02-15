@@ -42,12 +42,21 @@ class Lexer:
 
             if i in ["'", '"']:
                 string = ""
+                previous = ""
 
                 while not self.reader.isEOF():
                     next = self.reader.consume()
+
                     if next == i:
-                        break
+                        if previous != "\\" and self.reader.peek() != i:
+                            break
+                        string = string[:-1]
                     string += next
+
+                    if next == "\\" and previous == "\\":
+                        previous += "\\"
+                    else:
+                        previous = next
 
                 self.tokens.append(tokens.VAL(string))
                 continue

@@ -117,7 +117,7 @@ class _Instance(_Expression):
 
         if all([isinstance(other[0], i) for i in self.__terms__]):
             return (True, 1)
-        return (False, 1)
+        return (False, 0)
 
     def _match_(self, other: List[Any]) -> Tuple[MatchList, int]:
         return (MatchList(other[0:1]), 1)
@@ -195,6 +195,19 @@ class _Choice(_Expression):
 
 
 Choice = _Choice()
+
+
+class _Not(_Expression):
+    def _eq_(self, other: List[Any]) -> Tuple[bool, int]:
+        eq = super()._eq_(other)
+        return (True, eq[1] + 1) if not eq[0] else (False, eq[1] - 1)
+
+    def _match_(self, other: List[Any]) -> Tuple[MatchList, int]:
+        eq = self._eq_(other)
+        return (MatchList(other[0 : eq[1]]), eq[1])
+
+
+Not = _Not()
 
 
 class _CaptureGroup(_Expression):
